@@ -1,10 +1,11 @@
 package lt.projectx.siuntupristatymoapi.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lt.projectx.siuntupristatymoapi.entity.Courier;
 import lt.projectx.siuntupristatymoapi.entity.Parcel;
-import lt.projectx.siuntupristatymoapi.repository.CourierRepository;
-import lt.projectx.siuntupristatymoapi.repository.ParcelRepository;
+import lt.projectx.siuntupristatymoapi.service.CourierService;
+import lt.projectx.siuntupristatymoapi.service.ParcelService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,40 +14,33 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/couriers")
 public class CourierController {
-    private final CourierRepository courierRepository;
-    private final ParcelRepository parcelRepository;
+    private final CourierService courierService;
+    private final ParcelService parcelService;
 
     @PostMapping
-    public Courier createCourier(@RequestBody Courier courier) {
-        return courierRepository.saveAndFlush(courier);
+    public Courier createCourier(@Valid @RequestBody Courier courier) {
+        return courierService.saveCourier(courier);
     }
 
     @GetMapping
     public List<Courier> getAllCouriers() {
-        return courierRepository.findAll();
+        return courierService.getAllCouriers();
     }
 
     @GetMapping("/{id}")
     public Courier getCourierById(@PathVariable Long id) {
-        return courierRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Courier not found with id: " + id));
+        return courierService.getCourierById(id);
+
     }
 
     @GetMapping("/{id}/parcels")
     public List<Parcel> getAllCourierParcels(@PathVariable Long id) {
-        return parcelRepository.findByCourierId(id);
+        return parcelService.getParcelRepository().findByCourierId(id);
     }
 
     @PutMapping("/{id}")
     public Courier updateCourierInfo(@PathVariable Long id, @RequestBody Courier updatedCourier) {
-        return courierRepository.findById(id)
-                .map(courier -> {
-                    courier.setPersonalCode(updatedCourier.getPersonalCode());
-                    courier.setFirstName(updatedCourier.getFirstName());
-                    courier.setLastName(updatedCourier.getLastName());
-                    courier.setVehicleNumber(updatedCourier.getVehicleNumber());
-                    return courierRepository.saveAndFlush(courier);
-                })
-                .orElseThrow(() -> new RuntimeException("Courier not found with id: " + id));
+        return courierService.updateCourierById(id, updatedCourier);
+
     }
 }

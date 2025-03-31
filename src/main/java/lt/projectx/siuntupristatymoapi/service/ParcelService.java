@@ -1,18 +1,18 @@
 package lt.projectx.siuntupristatymoapi.service;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.Getter;
 import lt.projectx.siuntupristatymoapi.ParcelStatus;
 import lt.projectx.siuntupristatymoapi.entity.Courier;
 import lt.projectx.siuntupristatymoapi.entity.Parcel;
-import lt.projectx.siuntupristatymoapi.repository.CourierRepository;
+import lt.projectx.siuntupristatymoapi.exception.EntityNotFoundException;
 import lt.projectx.siuntupristatymoapi.repository.ParcelRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
+import static lt.projectx.siuntupristatymoapi.entity.Parcel.createParcel;
 
 @Service
 @Getter
@@ -20,14 +20,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ParcelService {
     private final ParcelRepository parcelRepository;
-    private final CourierRepository courierRepository;
+    private final CourierService courierService;
 
     public List<Parcel> getAllParcels() {
         return parcelRepository.findAll();
     }
 
-    public Optional<Parcel> getParcelById(Long id) {
-        return parcelRepository.findById(id);
+    public Parcel getParcelById(Long id) {
+        return parcelRepository.getReferenceById(id);
     }
 
     public Parcel saveParcel(Parcel parcel) {
@@ -37,9 +37,12 @@ public class ParcelService {
     public void deleteParcelById(Long id) {
         parcelRepository.deleteById(id);
     }
+    public boolean existsParcelById(Long id) {
+        return parcelRepository.existsById(id);
+    }
 
     public void addTestData() {
-        if (parcelRepository.count() == 0) { // Kad testiniai duomenys nesikartotų
+        if (parcelRepository.count() == 0) {
             List<Courier> couriers = new ArrayList<>();
 
             Courier courier1 = new Courier();
@@ -47,35 +50,35 @@ public class ParcelService {
             courier1.setFirstName("Jonas");
             courier1.setLastName("Jonaitis");
             courier1.setVehicleNumber("ABC345");
-            couriers.add(courierRepository.saveAndFlush(courier1));
+            couriers.add(courierService.saveCourier(courier1));
 
             Courier courier2 = new Courier();
             courier2.setPersonalCode("395468862311");
             courier2.setFirstName("Petras");
             courier2.setLastName("Petraitis");
             courier2.setVehicleNumber("ABC123");
-            couriers.add(courierRepository.saveAndFlush(courier2));
+            couriers.add(courierService.saveCourier(courier2));
 
             Courier courier3 = new Courier();
             courier3.setPersonalCode("39577777777");
             courier3.setFirstName("Andrius");
             courier3.setLastName("Kazlauskas");
             courier3.setVehicleNumber("XYZ789");
-            couriers.add(courierRepository.saveAndFlush(courier3));
+            couriers.add(courierService.saveCourier(courier3));
 
             Courier courier4 = new Courier();
             courier4.setPersonalCode("39599988877");
             courier4.setFirstName("Mantas");
             courier4.setLastName("Stankevicius");
             courier4.setVehicleNumber("LMN456");
-            couriers.add(courierRepository.saveAndFlush(courier4));
+            couriers.add(courierService.saveCourier(courier4));
 
             Courier courier5 = new Courier();
             courier5.setPersonalCode("39511122233");
             courier5.setFirstName("Lukas");
             courier5.setLastName("Brazinskas");
             courier5.setVehicleNumber("QWE852");
-            couriers.add(courierRepository.saveAndFlush(courier5));
+            couriers.add(courierService.saveCourier(courier5));
 
             List<Parcel> parcels = new ArrayList<>();
 
@@ -94,14 +97,6 @@ public class ParcelService {
         }
     }
 
-    private Parcel createParcel(String trackingNumber, double weight, String address, ParcelStatus status, Courier courier) {
-        Parcel parcel = new Parcel();
-        parcel.setTrackingNumber(trackingNumber);
-        parcel.setWeightKg(weight);
-        parcel.setDestinationAddress(address);
-        parcel.setStatus(status);
-        parcel.setCourier(courier);
-        return parcel;
-    }
+
 
 }

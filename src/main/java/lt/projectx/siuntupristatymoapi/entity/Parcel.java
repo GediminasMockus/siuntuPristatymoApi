@@ -23,7 +23,16 @@ public class Parcel {
     private ParcelStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "courier_id", nullable = false)
     private Courier courier;
+
+    public static Parcel createParcel(String trackingNumber, double weight, String address, ParcelStatus status, Courier courier) {
+        Parcel parcel = new Parcel();
+        parcel.setTrackingNumber(trackingNumber);
+        parcel.setWeightKg(weight);
+        parcel.setDestinationAddress(address);
+        parcel.setStatus(status);
+        parcel.setCourier(courier);
+        return parcel;
+    }
 
 }
